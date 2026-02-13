@@ -1,6 +1,6 @@
 spring:
   application:
-    name: frontend
+    name: front
   cloud:
     loadbalancer:
       health-check:

@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# Spring Boot LoadBalancer Health Check Issue - Cleanup Script
+# Spring Cloud LoadBalancer with Kubernetes discovery and health checking issue - Reproduction cleanup script
 # =============================================================================
 # This script removes all Kubernetes resources created by repro-start.sh.
 #

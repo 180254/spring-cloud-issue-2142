@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# Spring Boot LoadBalancer Health Check Issue - Reproduction Script
+# Spring Cloud LoadBalancer with Kubernetes discovery and health checking issue - Reproduction start Script
 # =============================================================================
 # This script sets up a Kubernetes environment to reproduce the issue where
 # Spring Cloud LoadBalancer stops working when health check is enabled in
@@ -9,13 +9,6 @@
 # Usage:
 #   ./repro-start.sh              # Run with Spring Boot 4 (reproduces the issue)
 #   ./repro-start.sh --springboot3  # Run with Spring Boot 3 (working version)
-#
-# Prerequisites:
-#   - Docker
-#   - Minikube
-#   - kubectl
-#   - Java 25
-#   - Maven
 # =============================================================================
 
 set -e
@@ -27,24 +20,24 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 USE_SPRING_BOOT_3=false
 for arg in "$@"; do
   case $arg in
-    --springboot3)
-      USE_SPRING_BOOT_3=true
-      shift
-      ;;
-    --help|-h)
-      echo "Usage: $0 [OPTIONS]"
-      echo ""
-      echo "Options:"
-      echo "  --springboot3   Use Spring Boot 3.5.10 (working version)"
-      echo "                  Default: Spring Boot 4.0.2 (issue version)"
-      echo "  -h, --help      Show this help message"
-      exit 0
-      ;;
+  --springboot3)
+    USE_SPRING_BOOT_3=true
+    shift
+    ;;
+  --help | -h)
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  --springboot3   Use Spring Boot 3.5.10 (working version)"
+    echo "                  Default: Spring Boot 4.0.2 (issue version)"
+    echo "  -h, --help      Show this help message"
+    exit 0
+    ;;
   esac
 done
 
 echo "=========================================="
-echo "Spring Boot LoadBalancer Health Check Issue Reproduction"
+echo "Spring Cloud LoadBalancer with Kubernetes discovery and health checking issue reproduction"
 echo "=========================================="
 if [ "$USE_SPRING_BOOT_3" = true ]; then
   echo "Mode: Spring Boot 3.5.10 + Spring Cloud 2025.0.1 (WORKING)"
