@@ -117,10 +117,12 @@ echo "=========================================="
 echo ""
 if [ "$USE_SPRING_BOOT_3" = true ]; then
   echo "Running with: Spring Boot 3.5.10 + Spring Cloud 2025.0.1"
-  echo "Expected: LoadBalancer should work correctly ✅"
+  echo "Actual result: Returns DONE from backend"
+  echo "Expected result: That is expected — it is functioning correctly"
 else
   echo "Running with: Spring Boot 4.0.2 + Spring Cloud 2025.1.1"
-  echo "Expected: LoadBalancer fails when health-check is enabled ❌"
+  echo "Actual result with Spring Boot 4: Request fails / times out"
+  echo "Expected result with Spring Boot 4: Returns DONE from backend"
 fi
 echo ""
 echo "Current pods:"

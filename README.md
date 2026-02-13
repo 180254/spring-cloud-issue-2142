@@ -50,6 +50,7 @@ curl http://localhost:8080/
 ```
 
 **Actual result with Spring Boot 4**: Request fails / times out
+**Expected result with Spring Boot 4**: Returns `DONE` from backend
 
 ### Test with Spring Boot 3 (working version)
 
@@ -62,7 +63,7 @@ kubectl port-forward deployment/front-deployment 8080:8080
 curl http://localhost:8080/
 ```
 
-**Expected result with Spring Boot 3**: Returns `DONE` from backend
+**Actual result with Spring Boot 3**: Returns `DONE` from backend (functioning correctly)
 
 ## What the script does
 
