@@ -32,6 +32,11 @@ for arg in "$@"; do
     echo "  -h, --help      Show this help message"
     exit 0
     ;;
+  *)
+    echo "Error: Unknown argument '$arg'"
+    echo "Use --help for usage information."
+    exit 1
+    ;;
   esac
 done
 
@@ -49,57 +54,64 @@ echo "=========================================="
 
 # Step 1: Build backend
 echo ""
-echo "[1/6] Building backend application..."
-pushd "$PROJECT_ROOT/backend" > /dev/null
+echo "[1/7] Building backend application..."
+pushd "$PROJECT_ROOT/backend" >/dev/null
 ./mvnw clean package -DskipTests
-popd > /dev/null
+popd >/dev/null
 echo "Backend built successfully!"
 
 # Step 2: Build front
 echo ""
-echo "[2/6] Building front application..."
-pushd "$PROJECT_ROOT/front" > /dev/null
+echo "[2/7] Building front application..."
+pushd "$PROJECT_ROOT/front" >/dev/null
 if [ "$USE_SPRING_BOOT_3" = true ]; then
   ./mvnw -f pom2.xml clean package -DskipTests
 else
   ./mvnw -f pom.xml clean package -DskipTests
 fi
-popd > /dev/null
+popd >/dev/null
 echo "front built successfully!"
 
 # Step 3: Start minikube if not running
 echo ""
-echo "[3/6] Checking minikube status..."
+echo "[3/7] Checking minikube status..."
 MINIKUBE_STATUS=$(minikube status 2>/dev/null || true)
-if echo "$MINIKUBE_STATUS" | grep -q "host: Running" && \
-   echo "$MINIKUBE_STATUS" | grep -q "kubelet: Running" && \
-   echo "$MINIKUBE_STATUS" | grep -q "apiserver: Running"; then
+if echo "$MINIKUBE_STATUS" | grep -q "host: Running" &&
+  echo "$MINIKUBE_STATUS" | grep -q "kubelet: Running" &&
+  echo "$MINIKUBE_STATUS" | grep -q "apiserver: Running"; then
   echo "Minikube is already running (host, kubelet, apiserver all OK)."
 else
   echo "Starting minikube..."
   minikube start
+  # Refresh status after starting
+  MINIKUBE_STATUS=$(minikube status 2>/dev/null || true)
 fi
 
-# Step 4.1: Configure docker to use minikube's docker daemon
+# Step 4: Configure docker to use minikube's docker daemon
 echo ""
-echo "[4.1/6] Configuring Docker to use Minikube's daemon..."
+echo "[4/7] Configuring Docker to use Minikube's daemon..."
 eval "$(minikube docker-env)"
 
-# Step 4.2: Update Kubernetes context to minikube
+# Step 5: Update Kubernetes context to minikube
 echo ""
-echo "[4.2/6] Updating Kubernetes context to minikube..."
+echo "[5/7] Updating Kubernetes context to minikube..."
 if echo "$MINIKUBE_STATUS" | grep -q "kubeconfig: Configured"; then
-  echo "Kubernetes context is already set to minikube."
+  echo "Kubeconfig is already configured for minikube."
 else
-  echo "Switching Kubernetes context to minikube..."
+  echo "Kubeconfig is not configured for minikube. Updating context..."
   minikube update-context
 fi
-kubectl config use-context minikube
+if kubectl config current-context | grep -q "minikube"; then
+  echo "Kubernetes context is already set to minikube."
+else
+  echo "Setting Kubernetes context to minikube..."
+  kubectl config use-context minikube
+fi
 
-# Step 5: Build Docker images
+# Step 6: Build Docker images
 echo ""
-echo "[5/6] Building Docker images..."
-pushd "$SCRIPT_DIR" > /dev/null
+echo "[6/7] Building Docker images..."
+pushd "$SCRIPT_DIR" >/dev/null
 
 echo "Building backend image..."
 docker build -t backend:latest -f dockerfiles/backend.Dockerfile "$PROJECT_ROOT/backend"
@@ -107,12 +119,12 @@ docker build -t backend:latest -f dockerfiles/backend.Dockerfile "$PROJECT_ROOT/
 echo "Building front image..."
 docker build -t front:latest -f dockerfiles/front.Dockerfile "$PROJECT_ROOT/front"
 
-popd > /dev/null
+popd >/dev/null
 echo "Docker images built successfully!"
 
-# Step 6: Clean up and apply Kubernetes manifests
+# Step 7: Clean up and apply Kubernetes manifests
 echo ""
-echo "[6/6] Cleaning up and applying Kubernetes manifests..."
+echo "[7/7] Cleaning up and applying Kubernetes manifests..."
 echo "Cleaning up existing Kubernetes resources..."
 kubectl delete -f "$SCRIPT_DIR/k8s/" --ignore-not-found=true
 
